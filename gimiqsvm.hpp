@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <iomanip>
+#include <sstream>
 
 namespace gimiqs {
     class BasePlate;
@@ -11,36 +12,53 @@ namespace gimiqs {
     struct Briq {
         char annot;
         char sub_annot;
-        short bucket_index_L;
-        short bucket_index_G;
-        int briq_index_L;
-        int briq_index_G;
+        short bucket_index_P;
+        short bucket_index_Q;
+        unsigned int briq_index_P;
+        unsigned int briq_index_Q;
 
         Briq(char an1, char an2) {
             set_defalut(an1, an2, 0, 0, 0, 0);
         }
 
-        Briq(char an1, char an2, short bcidx1, short bcidx2, int bridx1, int bridx2) {
+        Briq(char an1, char an2, short bcidx1, short bcidx2, unsigned int bridx1, unsigned int bridx2) {
             set_defalut(an1, an2, bcidx1, bcidx2, bridx1, bridx2);
         }
 
-        void set_defalut(char an1, char an2, short bcidx1, short bcidx2, int bridx1, int bridx2) {
+        void set_defalut(char an1, char an2, short bcidx1, short bcidx2, unsigned int bridx1, unsigned int bridx2) {
             annot = an1;
             sub_annot = an2;
-            bucket_index_L = bcidx1;
-            bucket_index_G = bcidx2;
-            briq_index_L = bridx1;
-            briq_index_G = bridx2;
+            bucket_index_P = bcidx1;
+            bucket_index_Q = bcidx2;
+            briq_index_P = bridx1;
+            briq_index_Q = bridx2;
         }
 
         std::string to_s() {
+            std::string ret;
             if (annot == '~') {
-                return "N";
+                ret = "N";
             } else if (annot == 'N') {
-                return "";
+                ret = "";
+            } else {
+                std::string annot_str {annot};
+                ret = "annot is [" + annot_str + "]";
+                return ret;
             }
-            std::string annot_str {annot};
-            return "annot is [" + annot_str + "]";
+
+            if (briq_index_P > 0) {
+                std::stringstream ss;
+                ss << briq_index_P;
+                ret += "P:" + ss.str() + " ";
+            }
+
+            if (briq_index_Q > 0) {
+                std::stringstream ss;
+                ss << briq_index_Q;
+                ret += "Q:" + ss.str() + " ";
+            }
+
+            return ret;
         }
 
     };
