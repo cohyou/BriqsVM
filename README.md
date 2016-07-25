@@ -28,4 +28,4 @@ Briq has bit patterns below.
 - DntrQ...denoter index of Q (4byte)
 
 ## Internal of VM
-GimiqsVm has 65536 buckets, and each bucket can have 4294967295 briqs.
+GimiqsVM has 65536 buckets, and each bucket can have 4294967295 briqs.
