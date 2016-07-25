@@ -20,12 +20,12 @@ Briq has bit patterns below.
 +-----+-----+-----+-----+-----+-----+-----+-----+
 ```
 
-Type1...main type of briq  (2byte)
-Type2...sub type of briq   (2byte)
-BcktP...bucket index of P  (2byte)
-BcktQ...bucket index of Q  (2byte)
-DntrP...denoter index of P (4byte)
-DntrQ...denoter index of Q (4byte)
+- Type1...main type of briq  (2byte)
+- Type2...sub type of briq   (2byte)
+- BcktP...bucket index of P  (2byte)
+- BcktQ...bucket index of Q  (2byte)
+- DntrP...denoter index of P (4byte)
+- DntrQ...denoter index of Q (4byte)
 
 ## Internal of VM
 GimiqsVm has 65536 buckets, and each bucket can have 4294967295 briqs.
