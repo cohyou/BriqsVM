@@ -1,5 +1,6 @@
 #include "gimiqs.hpp"
 
+#include <vector>
 #include <string>
 #include <istream>
 #include <iostream>
@@ -19,10 +20,29 @@
 #define BYTE_SWAP_32(x) ((uint32_t)( _BYTE1(x)<<24 | _BYTE2(x)<<16 | _BYTE3(x)<<8 | _BYTE4(x) ))
 #define BYTE_SWAP_64(x) ((uint64_t)( _BYTE1(x)<<56 | _BYTE2(x)<<48 | _BYTE3(x)<<40 | _BYTE4(x)<<32 | _BYTE5(x)<<24 | _BYTE6(x)<<16 | _BYTE7(x)<<8 | _BYTE8(x) ))
 
-void test_briq() {
-    std::cout << "hello, piq." << std::endl;
+std::vector<std::string> split(const std::string &str, char sep) {
+    std::vector<std::string> v;
 
-    gimiqs::Baseplate bp;
+    auto first = str.begin();
+
+    while (first != str.end()) {
+        auto last = first; // iterator of last char before separator
+
+        while (last != str.end() && *last != sep) ++last;
+
+        // push slice of original std::string from first to last
+        if (first != last) v.push_back(std::string(first, last));
+
+        if (last != str.end()) ++last;
+
+        first = last;
+    }
+
+    return v;
+}
+
+void test_briq(gimiqs::Baseplate& bp) {
+    std::cout << "hello, piq." << std::endl;
 
     gimiqs::Bucket& bc = bp.at(-1);
 
@@ -39,18 +59,29 @@ void test_briq() {
     std::cout << "Briq is " << (std::is_pod<gimiqs::Briq>::value ? "POD!" : "not POD!") << std::endl;
 }
 
+void parse_assembler(gimiqs::Baseplate& bp, std::vector<std::string> tokens) {
+    if (tokens[0] == "quit") {
+        exit(0);
+    } else if (tokens[0] == "mkbc") {
+        if (tokens.size() != 2) {
+            std::cout << "sorry, skbc command requires 1 arg... plz try again. " << std::endl;
+        } else {
+            std::cout << "you wanna make bucket of #" << tokens[1] << ", i see." << std::endl;
+        }
+    } else {
+        std::cout << "sorry, i can not get what you mean... ('" << tokens[0] << "'). plz try again. " << std::endl;
+    }
+}
+
 int main() {
-    test_briq();
+    gimiqs::Baseplate bp;
+
+    test_briq(bp);
 
     while (true) {
         char buffered_string[256];
         std::cin.getline(buffered_string, sizeof(buffered_string));
         std::string s { buffered_string };
-
-        if (s == "@@@") {
-            break;
-        } else {
-            std::cout << "you typed: " << s << std::endl;
-        }
+        parse_assembler(bp, split(s, ' '));
     }
 }
