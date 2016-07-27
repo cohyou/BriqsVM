@@ -1,6 +1,9 @@
 #include "gimiqs.hpp"
 
+#include <string>
+#include <istream>
 #include <iostream>
+// #include <iomanip>
 #include <type_traits>
 
 #define _BYTE1(x) (  x        & 0xFF )
@@ -16,10 +19,14 @@
 #define BYTE_SWAP_32(x) ((uint32_t)( _BYTE1(x)<<24 | _BYTE2(x)<<16 | _BYTE3(x)<<8 | _BYTE4(x) ))
 #define BYTE_SWAP_64(x) ((uint64_t)( _BYTE1(x)<<56 | _BYTE2(x)<<48 | _BYTE3(x)<<40 | _BYTE4(x)<<32 | _BYTE5(x)<<24 | _BYTE6(x)<<16 | _BYTE7(x)<<8 | _BYTE8(x) ))
 
-int main() {
+void test_briq() {
     std::cout << "hello, piq." << std::endl;
 
-    gimiqs::Briq b {0};
+    gimiqs::Baseplate bp;
+
+    gimiqs::Bucket& bc = bp.at(-1);
+
+    gimiqs::Briq& b = bc.at(0);
 
     b.L = BYTE_SWAP_64(0x0123456789ABCDEF);
     b.H = BYTE_SWAP_64(0xFEDCBA9876543210);
@@ -30,4 +37,20 @@ int main() {
     printf("piq4: %016lX %016lX\n", b.L, b.H);
 
     std::cout << "Briq is " << (std::is_pod<gimiqs::Briq>::value ? "POD!" : "not POD!") << std::endl;
+}
+
+int main() {
+    test_briq();
+
+    while (true) {
+        char buffered_string[256];
+        std::cin.getline(buffered_string, sizeof(buffered_string));
+        std::string s { buffered_string };
+
+        if (s == "@@@") {
+            break;
+        } else {
+            std::cout << "you typed: " << s << std::endl;
+        }
+    }
 }

@@ -1,3 +1,6 @@
+#include <vector>
+#include <map>
+
 namespace gimiqs {
 
     /*
@@ -33,5 +36,43 @@ namespace gimiqs {
                                       union { short HHH;
                                               struct { char HHHL, HHHH; }; }; }; }; }; };
     }; // struct Briq
+
+    class Bucket {
+        std::vector<Briq> briqs;
+    public:
+        Bucket() {
+            this->push();
+        }
+
+        void push() {
+            Briq b {0};
+            briqs.push_back(b);
+        }
+
+        void pop() {
+            briqs.pop_back();
+        }
+
+        Briq& at(int index) {
+            return briqs.at(index);
+        }
+    }; // class Bucket
+
+    class Baseplate {
+        std::map<short, Bucket> buckets;
+    public:
+        Baseplate() {
+            this->make_bucket(0xFFFF);
+        }
+
+        void make_bucket(short index) {
+            Bucket bc;
+            buckets[index] = bc;
+        }
+
+        Bucket& at(short index) {
+            return buckets[index];
+        }
+    }; // class Baseplate
 
 } // namespace gimiqs
