@@ -4,25 +4,15 @@
 #include <istream>
 #include <type_traits>
 
-std::vector<std::string> split(const std::string &str, char sep) {
-    std::vector<std::string> v;
-
-    auto first = str.begin();
-
-    while (first != str.end()) {
-        auto last = first; // iterator of last char before separator
-
-        while (last != str.end() && *last != sep) ++last;
-
-        // push slice of original std::string from first to last
-        if (first != last) v.push_back(std::string(first, last));
-
-        if (last != str.end()) ++last;
-
-        first = last;
+std::vector<std::string> split(std::string s, char delim) {
+    std::vector<std::string> ss;
+    if (s.empty()) return ss;
+    for (auto p = 0, delim_idx = 0; p != -1;) {
+        delim_idx = s.find(delim, p); // std::cout << delim_idx << std::endl;
+        if (delim_idx != p) ss.push_back(s.substr(p, delim_idx - p)); // std::cout << p << "&" << delim_idx << std::endl;
+        p = s.find_first_not_of(delim, delim_idx); // std::cout << p << "&" << delim_idx << std::endl;
     }
-
-    return v;
+    return ss;
 }
 
 namespace gimiqs {
@@ -123,72 +113,75 @@ bool is_hex_digit_string(std::string s) {
     return true;
 }
 
+bool check_args_count_for_command(std::vector<std::string> tokens, std::string command) {
+    std::map<std::string, int> cmd_argc;
+    cmd_argc["quit"] = 0;
+    cmd_argc["mkbc"] = 1;
+    cmd_argc["rmbc"] = 1;
+    cmd_argc["mkbr"] = 1;
+    cmd_argc["rmbr"] = 1;
+
+    tokens[0] == "mkbc" && check_args_size(tokens, required_args_count)
+}
+
+gimiqs::Briq& get_target_briq(std::string token) {
+    // first arg is briq index
+    // <bucket_number>:<briq_index> or <bucket_number>
+
+    auto briq_index_tokens = split(token, ':');
+    gimiqs::Briq& target_briq = bp.at(-1).at(0);
+
+    short bucket_number;
+
+    switch (briq_index_tokens.size()) {
+        case 1: {
+            // should be formula <bucket_number>
+            std::string arg1 = briq_index_tokens[0];
+            if (is_digit_string(arg1)) {
+                // std::cout << "arg1[" << arg1 << "]" << std::endl;
+                bucket_number = std::stol(arg1);
+            }
+            target_briq = bp.at(bucket_number).top();
+            break;
+        }
+
+        case 2: {
+            int briq_index;
+
+            // should be formula <bucket_number>:<briq_index>
+            std::string arg1 = briq_index_tokens[0];
+            if (is_digit_string(arg1)) {
+                bucket_number = std::stol(arg1);
+            }
+            std::string arg2 = briq_index_tokens[1];
+            if (is_digit_string(arg2)) {
+                briq_index = std::stol(arg2);
+            }
+            target_briq = bp.at(bucket_number).at(briq_index);
+            break;
+        }
+
+        default:
+        break;
+    }
+
+    return target_briq;
+}
+
 void parse_assembler(gimiqs::Baseplate& bp, std::vector<std::string> tokens) {
-    if (tokens[0] == "quit") {
+    if (check_args_count_for_command(tokens, "quit")) {
         exit(0);
-    } else if (tokens[0] == "mkbc") {
-        if (tokens.size() != 2) {
-            std::cout << "sorry, mkbc command requires 1 arg... plz try again. " << std::endl;
-        } else {
-            std::cout << "you wanna make bucket of #" << tokens[1] << ", i see." << std::endl;
+    } else if (check_args_count_for_command(tokens, "mkbc")) {
             bp.make_bucket(std::stoi(tokens[1]));
-        }
-    } else if (tokens[0] == "rmbc") {
-        if (tokens.size() != 2) {
-            std::cout << "sorry, rmbc command requires 1 arg... plz try again. " << std::endl;
-        } else {
+    } else if (check_args_count_for_command(tokens, "rmbc")) {
             bp.slay_bucket(std::stoi(tokens[1]));
-        }
-    } else if (tokens[0] == "mkbr") {
-        if (tokens.size() != 2) {
-            std::cout << "sorry, mkbr command requires 1 arg... plz try again. " << std::endl;
-        } else {
+    } else if (check_args_count_for_command(tokens, "mkbr")) {
             bp.at(std::stoi(tokens[1])).push();
-        }
-    } else if (tokens[0] == "rmbr") {
-        if (tokens.size() != 2) {
-            std::cout << "sorry, rmbr command requires 1 arg... plz try again. " << std::endl;
-        } else {
+    } else if (check_args_count_for_command(tokens, "rmbr")) {
             bp.at(std::stoi(tokens[1])).pop();
-        }
     } else if (tokens[0] == "adlc" || tokens[0] == "adhc") {
         if (check_args_size(tokens, 2)) {
-            // first arg is briq index
-            // <bucket_number>:<briq_index> or <bucket_number>
-            auto briq_index_tokens = split(tokens[1], ':');
-            gimiqs::Briq& target_briq = bp.at(-1).at(0);
-            short bucket_number;
-            switch (briq_index_tokens.size()) {
-                case 1: {
-                    // should be formula <bucket_number>
-                    std::string arg1 = briq_index_tokens[0];
-                    if (is_digit_string(arg1)) {
-                        // std::cout << "arg1[" << arg1 << "]" << std::endl;
-                        bucket_number = std::stol(arg1);
-                    }
-                    target_briq = bp.at(bucket_number).top();
-                    break;
-                }
-
-                case 2: {
-                    int briq_index;
-
-                    // should be formula <bucket_number>:<briq_index>
-                    std::string arg1 = briq_index_tokens[0];
-                    if (is_digit_string(arg1)) {
-                        bucket_number = std::stol(arg1);
-                    }
-                    std::string arg2 = briq_index_tokens[1];
-                    if (is_digit_string(arg2)) {
-                        briq_index = std::stol(arg2);
-                    }
-                    target_briq = bp.at(bucket_number).at(briq_index);
-                    break;
-                }
-
-                default:
-                break;
-            }
+            gimiqs::Briq& target_briq = get_target_briq(tokens[1]);
 
             auto token2 = tokens[2];
             if (is_digit_string(token2)) {
